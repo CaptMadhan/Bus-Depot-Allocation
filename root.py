@@ -29,6 +29,23 @@ def open_file():
       except FileNotFoundError:
          messagebox.showerror('Error',"File Not Found")
 
+def show_data():
+   cursor.execute('''SELECT * FROM Data''')
+   data = pd.DataFrame(cursor.fetchall())    
+   #Warehouse data only -->Change variables later
+   ware = list(data.iloc[0,:])
+   ware = ware[1:]
+
+   #Factory data only 
+   fact = list(data.iloc[:,0])
+   fact = fact[1:]
+   
+   #Weights
+   weights = np.array(data.iloc[1:,1:])
+   
+   print("warehouse: ",ware)
+   print("Factory: ",fact)
+   print("Weights:\n",weights)
 
 main_page = Tk()
 main_page.title('Bus Depot Allocation')
@@ -36,4 +53,6 @@ main_page.configure(bg= "#e7f0fd")
 main_page.geometry("1200x800")
 upload=Button(main_page,text="Upload file",padx=20,pady=3,command=open_file)
 upload.grid(row=1,column=1,pady=8,padx=20)
+display_data=Button(main_page,text="Display data",padx=20,pady=3,command=show_data)
+display_data.grid(row=2,column=1,pady=8,padx=20)
 mainloop()
