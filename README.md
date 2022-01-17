@@ -1,2 +1,2 @@
 # Bus Depot Allocation
- using Operation Research methods
+ Using Operation Research methods
