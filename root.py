@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter import ttk, filedialog
+from tkinter import filedialog
 from tkinter import messagebox
 import sqlite3 as base
 import sys
@@ -39,6 +39,7 @@ def open_file():
     tf = open('test.txt', 'r')
     data = tf.read()
     txtarea.insert(END, data)
+    show_data()
     tf.close()
 
 
@@ -73,7 +74,7 @@ def show_data():
 main_page = Tk()
 main_page.title('Bus Depot Allocation')
 main_page.configure(bg="#e7f0fd")
-main_page.geometry("1200x800")
+main_page.geometry("1500x800")
 main_page['bg'] = '#000'
 upload = Button(main_page, text="Upload file",
                 padx=20, pady=3, command=open_file)
