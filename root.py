@@ -76,12 +76,6 @@ main_page.title('Bus Depot Allocation')
 main_page.configure(bg="#e7f0fd")
 main_page.geometry("1500x800")
 main_page['bg'] = '#000'
-upload = Button(main_page, text="Upload file",
-                padx=20, pady=3, command=open_file)
-upload.grid(row=2, column=1, pady=20, padx=20)
-display_data = Button(main_page, text="Display data",
-                      padx=20, pady=3, command=show_data)
-display_data.grid(row=3, column=1, pady=0, padx=0)
 txtarea = Text(main_page, width=140, height=20)
 txtarea.grid(row=1, column=1, padx=50, pady=20)
 upload=Button(main_page,text="Upload file",padx=20,pady=3,command=open_file)
