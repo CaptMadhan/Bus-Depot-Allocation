@@ -37,46 +37,45 @@ def open_file():
         except FileNotFoundError:
             messagebox.showerror('Error', "File Not Found")
     sys.stdout.close()
-    #tf = open('test.txt', 'r')
-    #data = tf.read()
-    #txtarea.insert(END, data)
     show_data()
-    #tf.close()
 
 def clear_data():
     for item in weights_tree.get_children():
       weights_tree.delete(item)
 
 def show_data():
+    global demand,supply,weights
     sys.stdout = open("test.txt", "w")
     cursor.execute('''SELECT * FROM Data''')
     data = pd.DataFrame(cursor.fetchall())
     # Warehouse data only -->Change variables later
-    ware = list(data.iloc[0, :])
-    ware = ware[1:]
+    demand = list(data.iloc[0, :])
+    demand = demand[1:]
 
     ## Factory data only
-    fact = list(data.iloc[:, 0])
-    fact = fact[1:]
+    supply = list(data.iloc[:, 0])
+    supply = supply[1:]
 
     ## Weights
     weights = np.array(data.iloc[1:, 1:])
     sys.stdout.close()
-    table_from_df(pd.DataFrame(weights))
+    table_from_df(pd.DataFrame(weights),weights_tree,pd.DataFrame(weights).columns)
+    table_from_df(pd.DataFrame(demand),demand_tree,["Bus count"])
+    table_from_df(pd.DataFrame(supply),supply_tree,["Depots size"])
 
 
-def table_from_df(data):
-    for item in weights_tree.get_children():
-        weights_tree.delete(item)
-    weights_tree["column"] = list(data.columns)
-    weights_tree["show"] = "headings"
-    for column in weights_tree["column"]:
-        weights_tree.column(column, anchor=CENTER)
-        weights_tree.heading(column,text=column)
+def table_from_df(data,tree,columns):
+    for item in tree.get_children():
+        tree.delete(item)
+    tree["column"] = list(columns)
+    tree["show"] = "headings"
+    for column in tree["column"]:
+        tree.column(column, anchor=CENTER)
+        tree.heading(column,text=column)
     df_rows = data.to_numpy().tolist()
     for row in df_rows:
-        weights_tree.insert("","end",values=row)
-    weights_tree.pack()
+        tree.insert("","end",values=row)
+    tree.pack()
 
 
 main_page = Tk()
@@ -101,23 +100,54 @@ style.configure('my.Treeview.Heading', background='gray', font=('Arial Bold', 15
 #Style Code only END
 
 #TreeView Code starts here
-my_frame = Frame(main_page)
-my_frame.pack(padx=80,pady=200)
-weights_tree = ttk.Treeview(my_frame,show='headings', height=8, selectmode ='browse',style='my.Treeview')
+# Frame for Treeview
+frame = Frame(main_page)
+frame.pack(padx=80,pady=200)
+# Weights
+weights_tree = ttk.Treeview(frame,show='headings', height=8, selectmode ='browse',style='my.Treeview')
 weights_tree.place(x=25,y=45)
-
-# Horizontal and Vertical Scrollbars start
-vScroll =Scrollbar(my_frame)
+# Horizontal and Vertical Scrollbars for weights start
+vScroll =Scrollbar(frame)
 vScroll.configure(command=weights_tree.yview)
 weights_tree.configure(yscrollcommand=vScroll.set)
 vScroll.pack(side= RIGHT, fill= BOTH)
 
-hScroll=Scrollbar(my_frame, orient='horizontal')
+hScroll=Scrollbar(frame, orient='horizontal')
 hScroll.configure(command=weights_tree.xview)
 weights_tree.configure(xscrollcommand=hScroll.set)
 hScroll.pack(side=BOTTOM, fill='x')
+# Horizontal and Vertical Scrollbars for weights END
+
+# Demand
+demand_tree = ttk.Treeview(frame,show='headings', height=8, selectmode ='browse',style='my.Treeview')
+demand_tree.place(x=25,y=45)
+# Horizontal and Vertical Scrollbars for demand start
+vScroll =Scrollbar(frame)
+vScroll.configure(command=demand_tree.yview)
+demand_tree.configure(yscrollcommand=vScroll.set)
+vScroll.pack(side= RIGHT, fill= BOTH)
+
+hScroll=Scrollbar(frame, orient='horizontal')
+hScroll.configure(command=demand_tree.xview)
+demand_tree.configure(xscrollcommand=hScroll.set)
+hScroll.pack(side=BOTTOM, fill='x')
+# Horizontal and Vertical Scrollbars for demand END
+# Supply
+supply_tree = ttk.Treeview(frame,show='headings', height=8, selectmode ='browse',style='my.Treeview')
+supply_tree.place(x=25,y=45)
+# Horizontal and Vertical Scrollbars for demand start
+vScroll =Scrollbar(frame)
+vScroll.configure(command=supply_tree.yview)
+supply_tree.configure(yscrollcommand=vScroll.set)
+vScroll.pack(side= RIGHT, fill= BOTH)
+
+hScroll=Scrollbar(frame, orient='horizontal')
+hScroll.configure(command=supply_tree.xview)
+supply_tree.configure(xscrollcommand=hScroll.set)
+hScroll.pack(side=BOTTOM, fill='x')
+# Horizontal and Vertical Scrollbars for demand END
 show_data()
-# Horizontal and Vertical Scrollbars END
+
 #TreeView code ends here
 
 # Variables Initialization
@@ -125,21 +155,27 @@ sys.stdout = open("test.txt", "w")
 cursor.execute('''SELECT * FROM Data''')
 data = pd.DataFrame(cursor.fetchall())
 # Warehouse data only -->Change variables later
-ware = list(data.iloc[0, :])
-ware = ware[1:]
+demand = list(data.iloc[0, :])
+demand = demand[1:]
 
 ## Factory data only
-fact = list(data.iloc[:, 0])
-fact = fact[1:]
+supply = list(data.iloc[:, 0])
+supply = supply[1:]
 
 ## Weights
 weights = np.array(data.iloc[1:, 1:])
 sys.stdout.close()
-table_from_df(pd.DataFrame(weights))
+
+table_from_df(pd.DataFrame(weights),weights_tree,pd.DataFrame(weights).columns)
+table_from_df(pd.DataFrame(demand),demand_tree,["Bus count"])
+table_from_df(pd.DataFrame(supply),supply_tree,["Depots size"])
+weights_tree.pack()
+demand_tree.pack(side=LEFT)
+supply_tree.pack(side=RIGHT)
 
 upload=Button(main_page,text="Upload file",padx=20,pady=3,command=open_file).place(relx=0.4,rely=0.06)
 display_data=Button(main_page,text="Display data",padx=20,pady=3,command=show_data).place(relx=0.5,rely=0.06)
-clear_data=Button(main_page,text="clear data",padx=20,pady=3,command=clear_data).place(relx=0.6,rely=0.06)
+#clear_data=Button(main_page,text="clear data",padx=20,pady=3,command=clear_data).place(relx=0.6,rely=0.06)
 
 
 
