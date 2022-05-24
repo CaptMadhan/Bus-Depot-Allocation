@@ -4,9 +4,12 @@ from tkinter import messagebox
 from tkinter import ttk, filedialog
 import sqlite3 as base
 import sys
+import tkinter
+from matplotlib.pyplot import text
 import numpy as np
 import pandas as pd
 from pip import main
+import Logic as compute
 
 # create or connect a data base
 data_base = base.connect("demo1.db")
@@ -42,6 +45,12 @@ def open_file():
 def clear_data():
     for item in weights_tree.get_children():
       weights_tree.delete(item)
+    for item in supply_tree.get_children():
+      supply_tree.delete(item)
+    for item in demand_tree.get_children():
+      demand_tree.delete(item)
+    for item in result_tree.get_children():
+      result_tree.delete(item)
 
 def show_data():
     global demand,supply,weights
@@ -77,6 +86,11 @@ def table_from_df(data,tree,columns):
         tree.insert("","end",values=row)
     tree.pack()
 
+def allocate():
+    result_cost, result_alloc = compute.main_fun(data)
+    table_from_df(pd.DataFrame(result_alloc),result_tree,pd.DataFrame(result_alloc).columns)
+    text.set("Optimal Cost = "+ str(result_cost))
+
 
 main_page = Tk()
 main_page.title('Bus Depot Allocation')
@@ -102,10 +116,10 @@ style.configure('my.Treeview.Heading', background='gray', font=('Arial Bold', 15
 #TreeView Code starts here
 # Frame for Treeview
 frame = Frame(main_page)
-frame.pack(padx=80,pady=200)
+frame.pack(padx=60,pady=150)
 # Weights
 weights_tree = ttk.Treeview(frame,show='headings', height=8, selectmode ='browse',style='my.Treeview')
-weights_tree.place(x=25,y=45)
+weights_tree.place()
 # Horizontal and Vertical Scrollbars for weights start
 vScroll =Scrollbar(frame)
 vScroll.configure(command=weights_tree.yview)
@@ -148,6 +162,24 @@ hScroll.pack(side=BOTTOM, fill='x')
 # Horizontal and Vertical Scrollbars for demand END
 show_data()
 
+# Result Tree
+rframe = Frame(main_page)
+rframe.pack(padx=10,pady=10)
+result_tree = ttk.Treeview(rframe,show='headings', height=8, selectmode ='browse',style='my.Treeview')
+result_tree.place()
+# Horizontal and Vertical Scrollbars for Result start
+vScroll =Scrollbar(rframe)
+vScroll.configure(command=result_tree.yview)
+result_tree.configure(yscrollcommand=vScroll.set)
+vScroll.pack(side= RIGHT, fill= BOTH)
+
+hScroll=Scrollbar(rframe, orient='horizontal')
+hScroll.configure(command=result_tree.xview)
+result_tree.configure(xscrollcommand=hScroll.set)
+hScroll.pack(side=BOTTOM, fill='x')
+# Horizontal and Vertical Scrollbars for Result END
+show_data()
+
 #TreeView code ends here
 
 # Variables Initialization
@@ -169,14 +201,19 @@ sys.stdout.close()
 table_from_df(pd.DataFrame(weights),weights_tree,pd.DataFrame(weights).columns)
 table_from_df(pd.DataFrame(demand),demand_tree,["Bus count"])
 table_from_df(pd.DataFrame(supply),supply_tree,["Depots size"])
+
 weights_tree.pack()
 demand_tree.pack(side=LEFT)
 supply_tree.pack(side=RIGHT)
+result_tree.pack()
 
-upload=Button(main_page,text="Upload file",padx=20,pady=3,command=open_file).place(relx=0.4,rely=0.06)
-display_data=Button(main_page,text="Display data",padx=20,pady=3,command=show_data).place(relx=0.5,rely=0.06)
-#clear_data=Button(main_page,text="clear data",padx=20,pady=3,command=clear_data).place(relx=0.6,rely=0.06)
-
+upload=Button(main_page,text="Upload file",padx=20,pady=3,command=open_file).place(relx=0.3,rely=0.06)
+display_data=Button(main_page,text="Display data",padx=20,pady=3,command=show_data).place(relx=0.4,rely=0.06)
+clear_data=Button(main_page,text="clear data",padx=20,pady=3,command=clear_data).place(relx=0.5,rely=0.06)
+compute_result=Button(main_page,text="Allocate",padx=20,pady=3,command=allocate).place(relx=0.6,rely=0.06)
+text = tkinter.StringVar()
+text.set("Compute to get cost")
+total_cost_text = Label(main_page,textvariable=text,bg = "light cyan").place(relx=0.45,rely=0.6)
 
 
 main_page.state("zoomed")
