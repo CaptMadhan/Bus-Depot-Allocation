@@ -10,6 +10,11 @@ import numpy as np
 import pandas as pd
 from pip import main
 import Logic as compute
+from datetime import datetime
+
+from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import asksaveasfilename
+from tkinter.messagebox import showerror
 
 # create or connect a data base
 data_base = base.connect("demo1.db")
@@ -87,9 +92,26 @@ def table_from_df(data,tree,columns):
     tree.pack()
 
 def allocate():
+    sys.stdout = open("test.txt", "w")
+    cursor.execute('''SELECT * FROM Data''')
+    data = pd.DataFrame(cursor.fetchall())
     result_cost, result_alloc = compute.main_fun(data)
     table_from_df(pd.DataFrame(result_alloc),result_tree,pd.DataFrame(result_alloc).columns)
     text.set("Optimal Cost = "+ str(result_cost))
+    download_button.place(relx=0.7,rely=0.06)
+
+def download_result():
+    result_cost, result_alloc = compute.main_fun(data)
+    result_df = pd.DataFrame(result_alloc)
+    download_filename = "Allocation"+datetime.now().strftime("%d-%m-%Y-%H-%M-%S")+".xlsx"
+    #result_df.to_excel(download_filename)
+    try:
+        savefile = asksaveasfilename(filetypes=(("Excel files", "*.xlsx"),("All files", "*.*") ))  
+        result_df.to_excel(savefile + ".xlsx", index=False, sheet_name="download_filename")    
+    except:
+        showerror("Open Source File", "Failed to import file\n'%s'" % savefile)
+
+
 
 
 main_page = Tk()
@@ -211,6 +233,7 @@ upload=Button(main_page,text="Upload file",padx=20,pady=3,command=open_file).pla
 display_data=Button(main_page,text="Display data",padx=20,pady=3,command=show_data).place(relx=0.4,rely=0.06)
 clear_data=Button(main_page,text="clear data",padx=20,pady=3,command=clear_data).place(relx=0.5,rely=0.06)
 compute_result=Button(main_page,text="Allocate",padx=20,pady=3,command=allocate).place(relx=0.6,rely=0.06)
+download_button = Button(main_page,text="Download Result",padx=20,pady=3,command=download_result)
 text = tkinter.StringVar()
 text.set("Compute to get cost")
 total_cost_text = Label(main_page,textvariable=text,bg = "light cyan").place(relx=0.45,rely=0.6)
