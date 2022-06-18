@@ -1,4 +1,11 @@
+import sys
 import numpy as np
+import multiprocessing
+import time
+import threading
+import os
+import pandas as pd
+import sqlite3 as base
 
 def get_balanced(supply, demand, costs, penalties = None):
     total_supply = sum(supply)
@@ -164,6 +171,18 @@ def get_total_cost(costs, ans):
 #import pandas as pd
 #data = pd.read_excel("data-copy.xlsx", header=None)
 def main_fun(data):
+    delay_time = 5       # delay time in seconds
+    def watchdog():
+        data_base = base.connect("demo1.db")
+        cursor = data_base.cursor()
+        print("Data Incorrect")
+        cursor.execute('''SELECT * FROM Backup_Data''')
+        previous_data = pd.DataFrame(cursor.fetchall())
+        previous_data.to_sql('Data', data_base, if_exists='replace', index=False)
+        os._exit(1)
+
+    alarm = threading.Timer(delay_time, watchdog)
+
     m = data.shape[0]-1
     n = data.shape[1]-1
     demand = list(data.iloc[0, :])
@@ -173,6 +192,7 @@ def main_fun(data):
     supply = supply[1:]
 
     weights = np.array(data.iloc[1:, 1:])
-
+    alarm.start()
     ans = transportation_method(supply, demand, weights)
+    alarm.cancel()
     return get_total_cost(weights, ans),ans,IBFS

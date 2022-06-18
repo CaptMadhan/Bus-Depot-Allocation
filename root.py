@@ -5,15 +5,11 @@ from tkinter import ttk, filedialog
 import sqlite3 as base
 import sys
 import tkinter
-from matplotlib.pyplot import text
 import numpy as np
 import pandas as pd
 from pip import main
 import Logic as compute
 from datetime import datetime
-
-from tkinter.filedialog import askopenfilename
-from tkinter.filedialog import asksaveasfilename
 from tkinter.messagebox import showerror
 
 # create or connect a data base
@@ -28,6 +24,9 @@ def open_file():
     filename = filedialog.askopenfilename(title="Open a File", filetype=(("xlxs files", ".*xlsx"),
                                                                          ("All Files", "*.")))
     if filename:
+        cursor.execute('''SELECT * FROM Data''')
+        previous_data = pd.DataFrame(cursor.fetchall())
+        previous_data.to_sql('Backup_Data', data_base, if_exists='replace', index=False)
         try:
             filename = r"{}".format(filename)
             df = pd.read_excel(filename, header=None)
@@ -39,7 +38,6 @@ def open_file():
             print()
             for row in cursor.fetchall():
                 print(row)
-            # print(df)
         except ValueError:
             messagebox.showerror('Error', 'File could not be opened')
         except FileNotFoundError:
@@ -65,7 +63,6 @@ def clear_data():
 
 def show_data():
     global demand,supply,weights
-    sys.stdout = open("test.txt", "w")
     cursor.execute('''SELECT * FROM Data''')
     data = pd.DataFrame(cursor.fetchall())
     # Warehouse data only -->Change variables later
@@ -113,7 +110,7 @@ def download_result():
     download_filename = "Allocation"+datetime.now().strftime("%d-%m-%Y-%H-%M-%S")+".xlsx"
     #result_df.to_excel(download_filename)
     try:
-        savefile = asksaveasfilename(filetypes=(("Excel files", "*.xlsx"),("All files", "*.*") ))  
+        savefile = filedialog.asksaveasfilename(filetypes=(("Excel files", "*.xlsx"),("All files", "*.*") ))  
         result_df.to_excel(savefile + ".xlsx", index=False, sheet_name="download_filename")    
     except:
         showerror("Open Source File", "Failed to import file\n'%s'" % savefile)
