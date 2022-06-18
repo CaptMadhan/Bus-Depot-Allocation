@@ -17,6 +17,7 @@ def get_balanced(supply, demand, costs, penalties = None):
     return supply, demand, costs
 
 def row_MinimaIBFS(fact, ware, weights):
+    global IBFS
     n = 0
     w = 0
     cost = 0
@@ -47,6 +48,7 @@ def row_MinimaIBFS(fact, ware, weights):
             if(arr[i][j]!=0):
                 ibfs.append(((i, j), arr[i][j])) 
     #print('total bfs cost is: ',cost)
+    IBFS = cost
     return ibfs
 
 def get_us_and_vs(bfs, costs):
@@ -164,7 +166,6 @@ def get_total_cost(costs, ans):
 def main_fun(data):
     m = data.shape[0]-1
     n = data.shape[1]-1
-
     demand = list(data.iloc[0, :])
     demand = demand[1:]
 
@@ -174,4 +175,4 @@ def main_fun(data):
     weights = np.array(data.iloc[1:, 1:])
 
     ans = transportation_method(supply, demand, weights)
-    return get_total_cost(weights, ans),ans
+    return get_total_cost(weights, ans),ans,IBFS

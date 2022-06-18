@@ -46,6 +46,10 @@ def open_file():
             messagebox.showerror('Error', "File Not Found")
     sys.stdout.close()
     show_data()
+    for item in result_tree.get_children():
+      result_tree.delete(item)
+    text1.set("Compute to get cost")
+    text2.set("Compute to get allocation")
 
 def clear_data():
     for item in weights_tree.get_children():
@@ -56,6 +60,8 @@ def clear_data():
       demand_tree.delete(item)
     for item in result_tree.get_children():
       result_tree.delete(item)
+    text1.set("Compute to get cost")
+    text2.set("Compute to get allocation")
 
 def show_data():
     global demand,supply,weights
@@ -95,13 +101,14 @@ def allocate():
     sys.stdout = open("test.txt", "w")
     cursor.execute('''SELECT * FROM Data''')
     data = pd.DataFrame(cursor.fetchall())
-    result_cost, result_alloc = compute.main_fun(data)
+    result_cost, result_alloc, ibfs = compute.main_fun(data)
     table_from_df(pd.DataFrame(result_alloc),result_tree,pd.DataFrame(result_alloc).columns)
-    text.set("Optimal Cost = "+ str(result_cost))
-    download_button.place(relx=0.7,rely=0.06)
+    text1.set("Optimal Cost = "+ str(result_cost))
+    text2.set("IBFS = "+ str(ibfs))
+    download_button.place(relx=0.45,rely=0.94)
 
 def download_result():
-    result_cost, result_alloc = compute.main_fun(data)
+    result_cost, result_alloc, ibfs = compute.main_fun(data)
     result_df = pd.DataFrame(result_alloc)
     download_filename = "Allocation"+datetime.now().strftime("%d-%m-%Y-%H-%M-%S")+".xlsx"
     #result_df.to_excel(download_filename)
@@ -231,13 +238,16 @@ result_tree.pack()
 
 upload=Button(main_page,text="Upload file",padx=20,pady=3,command=open_file).place(relx=0.3,rely=0.06)
 display_data=Button(main_page,text="Display data",padx=20,pady=3,command=show_data).place(relx=0.4,rely=0.06)
-clear_data=Button(main_page,text="clear data",padx=20,pady=3,command=clear_data).place(relx=0.5,rely=0.06)
+clear_data_button=Button(main_page,text="clear data",padx=20,pady=3,command=clear_data).place(relx=0.5,rely=0.06)
 compute_result=Button(main_page,text="Allocate",padx=20,pady=3,command=allocate).place(relx=0.6,rely=0.06)
 download_button = Button(main_page,text="Download Result",padx=20,pady=3,command=download_result)
-text = tkinter.StringVar()
-text.set("Compute to get cost")
-total_cost_text = Label(main_page,textvariable=text,bg = "light cyan").place(relx=0.45,rely=0.6)
-
+text1 = tkinter.StringVar()
+text1.set("Compute to get cost")
+text2 = tkinter.StringVar()
+text2.set("IBFS")
+total_cost_text = Label(main_page,textvariable=text1,bg = "light cyan").place(relx=0.45,rely=0.6)
+IBFS_text = Label(main_page,textvariable=text2,bg = "light cyan").place(relx=0.45,rely=0.65)
+allocate()
 
 main_page.state("zoomed")
 mainloop()

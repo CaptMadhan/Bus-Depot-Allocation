@@ -9,4 +9,8 @@ cursor = data_base.cursor()
 cursor.execute('''create table IF NOT EXISTS FACTORY(
 ELEMENTS INT
 );''')
+
+cursor.execute('''create table IF NOT EXISTS Backup_factory(
+ELEMENTS INT
+);''')
 #cursor.execute("DROP TABLE FACTORY")
