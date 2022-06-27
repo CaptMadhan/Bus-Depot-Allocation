@@ -7,6 +7,9 @@ import os
 import pandas as pd
 import sqlite3 as base
 
+detailed_info = ""
+count = 0
+
 def get_balanced(supply, demand, costs, penalties = None):
     total_supply = sum(supply)
     total_demand = sum(demand)
@@ -24,7 +27,7 @@ def get_balanced(supply, demand, costs, penalties = None):
     return supply, demand, costs
 
 def row_MinimaIBFS(fact, ware, weights):
-    global IBFS
+    global IBFS,detailed_info
     n = 0
     w = 0
     cost = 0
@@ -56,6 +59,10 @@ def row_MinimaIBFS(fact, ware, weights):
                 ibfs.append(((i, j), arr[i][j])) 
     #print('total bfs cost is: ',cost)
     IBFS = cost
+    detailed_info += "`"*100+"\n"
+    detailed_info += "IBFS Allocation : \n"+str(arr)+"\n"
+    detailed_info += "IBFS Value = "+get_total_cost(weights, arr)[0]+"\n"
+    detailed_info += "`"*100+"\n"
     return ibfs
 
 def get_us_and_vs(bfs, costs):
@@ -89,8 +96,12 @@ def get_ws(bfs, costs, us, vs):
     return ws
 
 def can_be_improved(ws):
+    global detailed_info
     for p, v in ws:
-        if v > 0: return True
+        if v > 0: 
+            detailed_info+= "\tStill not OPTIMAL, moving towards OPTIMALITY\n"
+            return True
+    detailed_info+= "\tOPTIMAL, Stop here.\n"
     return False
 
 def get_entering_variable_position(ws):
@@ -124,8 +135,8 @@ def get_loop(bv_positions, ev_position):
     
     return inner([ev_position])
 
-def loop_pivoting(bfs, loop):
-    #print("thissssss",bfs)
+def loop_pivoting(bfs, loop,m,n):
+    global detailed_info
     even_cells = loop[0::2]
     odd_cells = loop[1::2]
     get_bv = lambda pos: next(v for p, v in bfs if p == pos)
@@ -139,39 +150,63 @@ def loop_pivoting(bfs, loop):
         elif p in odd_cells:
             v -= leaving_value
         new_bfs.append((p, v))
-        
+    detailed_info +="+"*m*10 + "\n"
+    detailed_info += "New Allocation: \n"+str(indexed_tuple_to_Array(new_bfs,m,n)) +"\n"
+    detailed_info +="+"*m*10 + "\n"
     return new_bfs
 
 def transportation_method(supply, demand, costs, penalties = None):
+    global detailed_info,count
     balanced_supply, balanced_demand, balanced_costs = get_balanced(
         supply, demand, costs
     )
-    def inner(bfs):
+    detailed_info += "Balanced Demand: "+str(balanced_demand)+"\nBalanced Supply: "+str(balanced_supply)+"\n"
+    def inner(bfs,m,n):
+        global detailed_info,count
+        detailed_info += "-"*150+"\n"
+        detailed_info += "ITERATION: "+str(count)+"\n"
+        count +=1
+        detailed_info += "-"*150+"\n"
         us, vs = get_us_and_vs(bfs, balanced_costs)
         ws = get_ws(bfs, balanced_costs, us, vs)
+        detailed_info += "Ui: " + str(us)+"\nVj: "+str(vs)+"\n\nD(i,j): \n"+str(indexed_tuple_to_Array(ws,m,n))+"\t"
         if can_be_improved(ws):
             ev_position = get_entering_variable_position(ws)
             loop = get_loop([p for p, v in bfs], ev_position)
-            return inner(loop_pivoting(bfs, loop))
+            return inner(loop_pivoting(bfs, loop,m,n),m,n)
         return bfs
     
-    basic_variables = inner(row_MinimaIBFS(balanced_supply, balanced_demand,costs))
+    basic_variables = inner(row_MinimaIBFS(balanced_supply, balanced_demand,costs),len(balanced_demand),len(balanced_supply))
     ans = np.zeros((len(costs), len(costs[0])))
     for (i, j), v in basic_variables:
         ans[i][j] = int(v)
     return ans
 
+def indexed_tuple_to_Array(tup,m,n):
+    arr = np.array([[0 for i in range(m)] for i in range(n)])
+    for i in tup:
+        arr[i[0][0]][i[0][1]] = i[1]
+        #print(i[0][0],i[0][1],i[1])
+    return arr
+
 def get_total_cost(costs, ans):
     total_cost = 0
+    detailed_info =""
     for i, row in enumerate(costs):
         for j, cost in enumerate(row):
-            total_cost += cost * ans[i][j]
-    return total_cost
+            if ans[i][j] !=0:
+                total_cost += cost * ans[i][j]
+                detailed_info += "("+str(cost)+")*("+str(int(ans[i][j]))+") +"
+    detailed_info = str(detailed_info[:-1]) + "= " + str(total_cost)
+    return detailed_info,total_cost
 
 #import pandas as pd
 #data = pd.read_excel("data-copy.xlsx", header=None)
 def main_fun(data):
     delay_time = 5       # delay time in seconds
+    global detailed_info,count
+    detailed_info = ""
+    count = 0
     def watchdog():
         data_base = base.connect("demo1.db")
         cursor = data_base.cursor()
@@ -195,4 +230,11 @@ def main_fun(data):
     alarm.start()
     ans = transportation_method(supply, demand, weights)
     alarm.cancel()
-    return get_total_cost(weights, ans),ans,IBFS
+    detailed_info += "="*100+"\n"
+    detailed_info += "Final Allocation: \n"+str(ans) +"\n\nOptimal Cost = "+str(get_total_cost(weights, ans)[0])+"\n\n"
+    detailed_info += "IBFS = "+str(IBFS)+"\n\nFinal Optimal Cost = "+str(get_total_cost(weights, ans)[1])+"\n\n"
+    detailed_info +="Final Optimal Allocation: \n"+str(ans)+"\n"
+    detailed_info += "="*100+"\n"
+    
+    #print(detailed_info)
+    return get_total_cost(weights, ans),ans,IBFS,detailed_info

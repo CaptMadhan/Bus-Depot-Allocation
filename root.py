@@ -48,6 +48,8 @@ def open_file():
       result_tree.delete(item)
     text1.set("Compute to get cost")
     text2.set("Compute to get allocation")
+    download_button.place_forget()
+    detailed_Result.place_forget()
 
 def clear_data():
     for item in weights_tree.get_children():
@@ -98,14 +100,15 @@ def allocate():
     sys.stdout = open("test.txt", "w")
     cursor.execute('''SELECT * FROM Data''')
     data = pd.DataFrame(cursor.fetchall())
-    result_cost, result_alloc, ibfs = compute.main_fun(data)
+    result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data)
     table_from_df(pd.DataFrame(result_alloc),result_tree,pd.DataFrame(result_alloc).columns)
     text1.set("Optimal Cost = "+ str(result_cost))
     text2.set("IBFS = "+ str(ibfs))
-    download_button.place(relx=0.45,rely=0.94)
+    download_button.place(relx=0.35,rely=0.94)
+    detailed_Result.place(relx=0.55,rely=0.94)
 
 def download_result():
-    result_cost, result_alloc, ibfs = compute.main_fun(data)
+    result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data)
     result_df = pd.DataFrame(result_alloc)
     download_filename = "Allocation"+datetime.now().strftime("%d-%m-%Y-%H-%M-%S")+".xlsx"
     #result_df.to_excel(download_filename)
@@ -115,7 +118,22 @@ def download_result():
     except:
         showerror("Open Source File", "Failed to import file\n'%s'" % savefile)
 
-
+def show_detailed_result():
+    steps = Tk()
+    steps.title('Detailed Steps')
+    steps.configure(bg="#e7f0fd")
+    steps.geometry("1500x800")
+    v=Scrollbar(steps, orient='vertical')
+    v.pack(side=RIGHT, fill='y')
+    txtarea = Text(steps, width=180, height=200,bg="#e7f0fd",yscrollcommand=v.set)
+    #txtarea.place(relx=0.5,rely=0.0)
+    txtarea.pack(padx=40,pady=20)
+    v.config(command=txtarea.yview)
+    Font_tuple = ("Calibri", 20, "bold")
+    txtarea.configure(font = Font_tuple)
+    result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data)
+    txtarea.insert(END, detailed_txt)
+    steps.state("zoomed")
 
 
 main_page = Tk()
@@ -238,12 +256,13 @@ display_data=Button(main_page,text="Display data",padx=20,pady=3,command=show_da
 clear_data_button=Button(main_page,text="clear data",padx=20,pady=3,command=clear_data).place(relx=0.5,rely=0.06)
 compute_result=Button(main_page,text="Allocate",padx=20,pady=3,command=allocate).place(relx=0.6,rely=0.06)
 download_button = Button(main_page,text="Download Result",padx=20,pady=3,command=download_result)
+detailed_Result = Button(main_page,text="Detailed Result",padx=20,pady=3,command=show_detailed_result)
 text1 = tkinter.StringVar()
 text1.set("Compute to get cost")
 text2 = tkinter.StringVar()
 text2.set("IBFS")
-total_cost_text = Label(main_page,textvariable=text1,bg = "light cyan").place(relx=0.45,rely=0.6)
-IBFS_text = Label(main_page,textvariable=text2,bg = "light cyan").place(relx=0.45,rely=0.65)
+total_cost_text = Label(main_page,textvariable=text1,bg = "light cyan").place(relx=0.35,rely=0.6)
+IBFS_text = Label(main_page,textvariable=text2,bg = "light cyan").place(relx=0.35,rely=0.65)
 allocate()
 
 main_page.state("zoomed")
