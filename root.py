@@ -102,7 +102,7 @@ def allocate():
     data = pd.DataFrame(cursor.fetchall())
     result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data)
     table_from_df(pd.DataFrame(result_alloc),result_tree,pd.DataFrame(result_alloc).columns)
-    text1.set("Optimal Cost = "+ str(result_cost))
+    text1.set("Optimal Cost = "+ str(result_cost[0]))
     text2.set("IBFS = "+ str(ibfs))
     download_button.place(relx=0.35,rely=0.94)
     detailed_Result.place(relx=0.55,rely=0.94)
