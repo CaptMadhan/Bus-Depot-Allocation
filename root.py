@@ -62,6 +62,8 @@ def clear_data():
       result_tree.delete(item)
     text1.set("Compute to get cost")
     text2.set("Compute to get allocation")
+    download_button.place_forget()
+    detailed_Result.place_forget()
 
 def show_data():
     global demand,supply,weights
@@ -102,6 +104,8 @@ def allocate():
     data = pd.DataFrame(cursor.fetchall())
     if chosen_choice.get() == "North-West rule":
         result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data,2)
+    #elif chosen_choice.get() == "Least-Cost Method":
+    #    result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data,3)
     else:
         result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data,1)
     table_from_df(pd.DataFrame(result_alloc),result_tree,pd.DataFrame(result_alloc).columns)
@@ -111,8 +115,12 @@ def allocate():
     detailed_Result.place(relx=0.55,rely=0.93)
 
 def download_result():
+    cursor.execute('''SELECT * FROM Data''')
+    data = pd.DataFrame(cursor.fetchall())
     if chosen_choice.get() == "North-West rule":
         result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data,2)
+    #elif chosen_choice.get() == "Least-Cost Method":
+    #    result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data,3)
     else:
         result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data,1)
     result_df = pd.DataFrame(result_alloc)
@@ -125,6 +133,8 @@ def download_result():
         showerror("Open Source File", "Failed to import file\n'%s'" % savefile)
 
 def show_detailed_result():
+    cursor.execute('''SELECT * FROM Data''')
+    data = pd.DataFrame(cursor.fetchall())
     steps = Tk()
     steps.title('Detailed Steps')
     steps.configure(bg="#e7f0fd")
@@ -139,6 +149,8 @@ def show_detailed_result():
     txtarea.configure(font = Font_tuple)
     if chosen_choice.get() == "North-West rule":
         result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data,2)
+    #elif chosen_choice.get() == "Least-Cost Method":
+    #    result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data,3)
     else:
         result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data,1)    
     txtarea.insert(END, detailed_txt)
@@ -152,7 +164,7 @@ main_page.geometry("1500x800")
 main_page['bg'] = '#000'
 #txtarea = Text(main_page, width=180, height=20,bg="#e7f0fd")
 #txtarea.grid(row=1, column=1, padx=50, pady=20)
-l = Label(main_page, text = "Bangalore Metropolitan Transport Corporation\nBus Depot Allocation")
+l = Label(main_page, text = "   Bangalore Metropolitan Transport Corporation    \nBus Depot Allocation")
 l.config(font =("Courier", 18))
 l.pack(pady = 20)
 #Style Code only START
@@ -262,16 +274,19 @@ supply_tree.pack(side=RIGHT)
 result_tree.pack()
 options = [
     "Row-Minima method",
-    "North-West rule"
+    "North-West rule",
+    "Least-Cost Method"
 ]
 chosen_choice = StringVar()
 chosen_choice.set( "Row-Minima method" )
 drop = OptionMenu( main_page , chosen_choice , *options )
+
 upload=Button(main_page,text="Upload file",padx=20,pady=3,command=open_file).place(relx=0.325,rely=0.1)
 display_data=Button(main_page,text="Display data",padx=20,pady=3,command=show_data).place(relx=0.425,rely=0.1)
 clear_data_button=Button(main_page,text="clear data",padx=20,pady=3,command=clear_data).place(relx=0.525,rely=0.1)
 compute_result=Button(main_page,text="Allocate",padx=20,pady=3,command=allocate).place(relx=0.625,rely=0.1)
 drop.place(relx=0.455,rely=0.15)
+Label(main_page,text="IBFS used -> ").place(relx=0.4,rely=0.155)
 
 download_button = Button(main_page,text="Download Result",padx=20,pady=3,command=download_result)
 detailed_Result = Button(main_page,text="Detailed Calculation",padx=20,pady=3,command=show_detailed_result)

@@ -92,6 +92,46 @@ def north_west_corner(supply, demand,costs):
     detailed_info += "`"*100+"\n"
     return bfs
 
+def leastCostIBFS(fact, ware,costs):
+    #import sys
+    global IBFS,detailed_info
+    n = 0
+    w = 0
+    ibfs = 0
+    weights = costs.copy()
+    temp_weights = weights.copy()
+    arr = np.array([[0 for i in range(len(ware))] for i in range(len(fact))])
+    while sum(fact) > 0:
+        n = np.argwhere(weights == np.min(weights))[0][0]
+        w = np.argwhere(weights == np.min(weights))[0][1]
+        if fact[n] > ware[w]:
+            arr[n][w] = ware[w]
+            fact[n] -= ware[w]
+            ware[w] = 0
+        elif fact[n] < ware[w]:
+            arr[n][w] = fact[n]
+            ware[w] -= fact[n]
+            fact[n] = 0
+        else:
+            arr[n][w] = fact[n]
+            fact[n] = 0
+            ware[w] = 0
+        weights[n][w] = 9999999
+    for i in range(len(arr)):
+        for j in range(len(arr[0])):
+            ibfs += arr[i][j] * costs[i][j]
+    result = []
+    for i in range(len(arr)):
+        for j in range(len(arr[0])):
+             if arr[i][j] != 0:
+                    result.append(((i,j),arr[i][j]))
+    IBFS = ibfs
+    detailed_info += "`"*100+"\n"
+    detailed_info += "IBFS Allocation using Least-Cost method: \n"+str(arr)+"\n"
+    detailed_info += "IBFS Value = "+get_total_cost(costs, arr)[0]+"\n"
+    detailed_info += "`"*100+"\n"
+    return result
+
 def get_us_and_vs(bfs, costs):
     us = [None] * len(costs)
     vs = [None] * len(costs[0])
@@ -206,6 +246,8 @@ def transportation_method(supply, demand, costs, choice):
         basic_variables = inner(row_MinimaIBFS(balanced_supply, balanced_demand,costs),len(balanced_demand),len(balanced_supply))
     elif choice ==2:
         basic_variables = inner(north_west_corner(balanced_supply, balanced_demand,costs),len(balanced_demand),len(balanced_supply))
+    elif choice ==3:
+        basic_variables = inner(leastCostIBFS(balanced_supply, balanced_demand,costs),len(balanced_demand),len(balanced_supply))
     ans = np.zeros((len(costs), len(costs[0])))
     for (i, j), v in basic_variables:
         ans[i][j] = int(v)
