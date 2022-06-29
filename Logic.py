@@ -57,10 +57,40 @@ def row_MinimaIBFS(fact, ware, weights):
     #print('total bfs cost is: ',cost)
     IBFS = cost
     detailed_info += "`"*100+"\n"
-    detailed_info += "IBFS Allocation : \n"+str(arr)+"\n"
+    detailed_info += "IBFS Allocation using Row-Minima Method: \n"+str(arr)+"\n"
     detailed_info += "IBFS Value = "+get_total_cost(weights, arr)[0]+"\n"
     detailed_info += "`"*100+"\n"
     return ibfs
+
+def north_west_corner(supply, demand,costs):
+    global IBFS,detailed_info
+    supply_copy = supply.copy()
+    demand_copy = demand.copy()
+    i = 0
+    j = 0
+    cost =0
+    bfs = []
+    while len(bfs) < len(supply) + len(demand) - 1:
+        s = supply_copy[i]
+        d = demand_copy[j]
+        v = min(s, d)
+        supply_copy[i] -= v
+        demand_copy[j] -= v
+        bfs.append(((i, j), v))
+        if supply_copy[i] == 0 and i < len(supply) - 1:
+            i += 1
+        elif demand_copy[j] == 0 and j < len(demand) - 1:
+            j += 1
+    arr = indexed_tuple_to_Array(bfs,len(demand),len(supply))
+    for i in range(len(arr)):
+        for j in range(len(arr[0])):
+            cost += arr[i][j] * costs[i][j]
+    IBFS = cost
+    detailed_info += "`"*100+"\n"
+    detailed_info += "IBFS Allocation using North-West rule: \n"+str(arr)+"\n"
+    detailed_info += "IBFS Value = "+get_total_cost(costs, arr)[0]+"\n"
+    detailed_info += "`"*100+"\n"
+    return bfs
 
 def get_us_and_vs(bfs, costs):
     us = [None] * len(costs)
@@ -152,7 +182,7 @@ def loop_pivoting(bfs, loop,m,n):
     detailed_info +="+"*m*10 + "\n"
     return new_bfs
 
-def transportation_method(supply, demand, costs, penalties = None):
+def transportation_method(supply, demand, costs, choice):
     global detailed_info,count
     balanced_supply, balanced_demand, balanced_costs = get_balanced(
         supply, demand, costs
@@ -172,8 +202,10 @@ def transportation_method(supply, demand, costs, penalties = None):
             loop = get_loop([p for p, v in bfs], ev_position)
             return inner(loop_pivoting(bfs, loop,m,n),m,n)
         return bfs
-    
-    basic_variables = inner(row_MinimaIBFS(balanced_supply, balanced_demand,costs),len(balanced_demand),len(balanced_supply))
+    if choice == 1:
+        basic_variables = inner(row_MinimaIBFS(balanced_supply, balanced_demand,costs),len(balanced_demand),len(balanced_supply))
+    elif choice ==2:
+        basic_variables = inner(north_west_corner(balanced_supply, balanced_demand,costs),len(balanced_demand),len(balanced_supply))
     ans = np.zeros((len(costs), len(costs[0])))
     for (i, j), v in basic_variables:
         ans[i][j] = int(v)
@@ -199,7 +231,7 @@ def get_total_cost(costs, ans):
 
 #import pandas as pd
 #data = pd.read_excel("data-copy.xlsx", header=None)
-def main_fun(data):
+def main_fun(data,choice=1):
     delay_time = 5       # delay time in seconds
     global detailed_info,count
     detailed_info = ""
@@ -225,7 +257,7 @@ def main_fun(data):
 
     weights = np.array(data.iloc[1:, 1:])
     alarm.start()
-    ans = transportation_method(supply, demand, weights)
+    ans = transportation_method(supply, demand, weights,choice)
     alarm.cancel()
     detailed_info += "="*100+"\n"
     detailed_info += "Final Allocation: \n"+str(ans) +"\n\nOptimal Cost = "+str(get_total_cost(weights, ans)[0])+"\n\n"

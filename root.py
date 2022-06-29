@@ -100,15 +100,21 @@ def allocate():
     sys.stdout = open("test.txt", "w")
     cursor.execute('''SELECT * FROM Data''')
     data = pd.DataFrame(cursor.fetchall())
-    result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data)
+    if chosen_choice.get() == "North-West rule":
+        result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data,2)
+    else:
+        result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data,1)
     table_from_df(pd.DataFrame(result_alloc),result_tree,pd.DataFrame(result_alloc).columns)
     text1.set("Optimal Cost = "+ str(result_cost[0]))
     text2.set("IBFS = "+ str(ibfs))
-    download_button.place(relx=0.35,rely=0.91)
-    detailed_Result.place(relx=0.55,rely=0.91)
+    download_button.place(relx=0.35,rely=0.93)
+    detailed_Result.place(relx=0.55,rely=0.93)
 
 def download_result():
-    result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data)
+    if chosen_choice.get() == "North-West rule":
+        result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data,2)
+    else:
+        result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data,1)
     result_df = pd.DataFrame(result_alloc)
     download_filename = "Allocation"+datetime.now().strftime("%d-%m-%Y-%H-%M-%S")+".xlsx"
     #result_df.to_excel(download_filename)
@@ -131,7 +137,10 @@ def show_detailed_result():
     v.config(command=txtarea.yview)
     Font_tuple = ("Calibri", 20, "bold")
     txtarea.configure(font = Font_tuple)
-    result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data)
+    if chosen_choice.get() == "North-West rule":
+        result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data,2)
+    else:
+        result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data,1)    
     txtarea.insert(END, detailed_txt)
     steps.state("zoomed")
 
@@ -161,7 +170,7 @@ style.configure('my.Treeview.Heading', background='gray', font=('Arial Bold', 15
 #TreeView Code starts here
 # Frame for Treeview
 frame = Frame(main_page)
-frame.pack(padx=60,pady=70)
+frame.pack(padx=60,pady=95)
 # Weights
 weights_tree = ttk.Treeview(frame,show='headings', height=8, selectmode ='browse',style='my.Treeview')
 weights_tree.place()
@@ -209,7 +218,7 @@ show_data()
 
 # Result Tree
 rframe = Frame(main_page)
-rframe.pack(padx=10,pady=25)
+rframe.pack(padx=10,pady=7)
 result_tree = ttk.Treeview(rframe,show='headings', height=8, selectmode ='browse',style='my.Treeview')
 result_tree.place()
 # Horizontal and Vertical Scrollbars for Result start
@@ -251,19 +260,27 @@ weights_tree.pack()
 demand_tree.pack(side=LEFT)
 supply_tree.pack(side=RIGHT)
 result_tree.pack()
-
+options = [
+    "Row-Minima method",
+    "North-West rule"
+]
+chosen_choice = StringVar()
+chosen_choice.set( "Row-Minima method" )
+drop = OptionMenu( main_page , chosen_choice , *options )
 upload=Button(main_page,text="Upload file",padx=20,pady=3,command=open_file).place(relx=0.325,rely=0.1)
 display_data=Button(main_page,text="Display data",padx=20,pady=3,command=show_data).place(relx=0.425,rely=0.1)
 clear_data_button=Button(main_page,text="clear data",padx=20,pady=3,command=clear_data).place(relx=0.525,rely=0.1)
 compute_result=Button(main_page,text="Allocate",padx=20,pady=3,command=allocate).place(relx=0.625,rely=0.1)
+drop.place(relx=0.455,rely=0.15)
+
 download_button = Button(main_page,text="Download Result",padx=20,pady=3,command=download_result)
 detailed_Result = Button(main_page,text="Detailed Calculation",padx=20,pady=3,command=show_detailed_result)
 text1 = tkinter.StringVar()
 text1.set("Compute to get cost")
 text2 = tkinter.StringVar()
 text2.set("IBFS")
-total_cost_text = Label(main_page,textvariable=text1,bg = "light cyan").place(relx=0.35,rely=0.6)
-IBFS_text = Label(main_page,textvariable=text2,bg = "light cyan").place(relx=0.35,rely=0.65)
+total_cost_text = Label(main_page,textvariable=text1,bg = "light cyan").place(relx=0.35,rely=0.675) 
+IBFS_text = Label(main_page,textvariable=text2,bg = "light cyan").place(relx=0.35,rely=0.625)
 allocate()
 
 main_page.state("zoomed")
