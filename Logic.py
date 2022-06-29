@@ -96,9 +96,9 @@ def can_be_improved(ws):
     global detailed_info
     for p, v in ws:
         if v > 0: 
-            detailed_info+= "\tStill not OPTIMAL, moving towards OPTIMALITY\n"
+            detailed_info+= "\t\tStill not OPTIMAL, moving towards OPTIMALITY\n"
             return True
-    detailed_info+= "\tOPTIMAL, Stop here.\n"
+    detailed_info+= "\t\tOPTIMAL, Stop here.\n"
     return False
 
 def get_entering_variable_position(ws):

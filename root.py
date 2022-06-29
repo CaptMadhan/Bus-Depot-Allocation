@@ -104,8 +104,8 @@ def allocate():
     table_from_df(pd.DataFrame(result_alloc),result_tree,pd.DataFrame(result_alloc).columns)
     text1.set("Optimal Cost = "+ str(result_cost[0]))
     text2.set("IBFS = "+ str(ibfs))
-    download_button.place(relx=0.35,rely=0.94)
-    detailed_Result.place(relx=0.55,rely=0.94)
+    download_button.place(relx=0.35,rely=0.91)
+    detailed_Result.place(relx=0.55,rely=0.91)
 
 def download_result():
     result_cost, result_alloc, ibfs,detailed_txt = compute.main_fun(data)
@@ -143,8 +143,9 @@ main_page.geometry("1500x800")
 main_page['bg'] = '#000'
 #txtarea = Text(main_page, width=180, height=20,bg="#e7f0fd")
 #txtarea.grid(row=1, column=1, padx=50, pady=20)
-
-
+l = Label(main_page, text = "Bangalore Metropolitan Transport Corporation\nBus Depot Allocation")
+l.config(font =("Courier", 18))
+l.pack(pady = 20)
 #Style Code only START
 style = ttk.Style()
 style.layout('my.Treeview',
@@ -160,7 +161,7 @@ style.configure('my.Treeview.Heading', background='gray', font=('Arial Bold', 15
 #TreeView Code starts here
 # Frame for Treeview
 frame = Frame(main_page)
-frame.pack(padx=60,pady=150)
+frame.pack(padx=60,pady=70)
 # Weights
 weights_tree = ttk.Treeview(frame,show='headings', height=8, selectmode ='browse',style='my.Treeview')
 weights_tree.place()
@@ -208,7 +209,7 @@ show_data()
 
 # Result Tree
 rframe = Frame(main_page)
-rframe.pack(padx=10,pady=10)
+rframe.pack(padx=10,pady=25)
 result_tree = ttk.Treeview(rframe,show='headings', height=8, selectmode ='browse',style='my.Treeview')
 result_tree.place()
 # Horizontal and Vertical Scrollbars for Result start
@@ -251,10 +252,10 @@ demand_tree.pack(side=LEFT)
 supply_tree.pack(side=RIGHT)
 result_tree.pack()
 
-upload=Button(main_page,text="Upload file",padx=20,pady=3,command=open_file).place(relx=0.3,rely=0.06)
-display_data=Button(main_page,text="Display data",padx=20,pady=3,command=show_data).place(relx=0.4,rely=0.06)
-clear_data_button=Button(main_page,text="clear data",padx=20,pady=3,command=clear_data).place(relx=0.5,rely=0.06)
-compute_result=Button(main_page,text="Allocate",padx=20,pady=3,command=allocate).place(relx=0.6,rely=0.06)
+upload=Button(main_page,text="Upload file",padx=20,pady=3,command=open_file).place(relx=0.325,rely=0.1)
+display_data=Button(main_page,text="Display data",padx=20,pady=3,command=show_data).place(relx=0.425,rely=0.1)
+clear_data_button=Button(main_page,text="clear data",padx=20,pady=3,command=clear_data).place(relx=0.525,rely=0.1)
+compute_result=Button(main_page,text="Allocate",padx=20,pady=3,command=allocate).place(relx=0.625,rely=0.1)
 download_button = Button(main_page,text="Download Result",padx=20,pady=3,command=download_result)
 detailed_Result = Button(main_page,text="Detailed Calculation",padx=20,pady=3,command=show_detailed_result)
 text1 = tkinter.StringVar()
