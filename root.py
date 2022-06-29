@@ -256,7 +256,7 @@ display_data=Button(main_page,text="Display data",padx=20,pady=3,command=show_da
 clear_data_button=Button(main_page,text="clear data",padx=20,pady=3,command=clear_data).place(relx=0.5,rely=0.06)
 compute_result=Button(main_page,text="Allocate",padx=20,pady=3,command=allocate).place(relx=0.6,rely=0.06)
 download_button = Button(main_page,text="Download Result",padx=20,pady=3,command=download_result)
-detailed_Result = Button(main_page,text="Detailed Result",padx=20,pady=3,command=show_detailed_result)
+detailed_Result = Button(main_page,text="Detailed Calculation",padx=20,pady=3,command=show_detailed_result)
 text1 = tkinter.StringVar()
 text1.set("Compute to get cost")
 text2 = tkinter.StringVar()
