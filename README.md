@@ -8,4 +8,10 @@
 
 •	Therefore, the dead kilometers reduction is important for economic growth of the public road transport service.
 
+<img src="Snapshots/Homepage.png" title="MainPage">
+
+<img src="Snapshots/upload_file.png" title="Upload file">
+
+<img src="Snapshots/detailed_calculation.png" title="Detailed Calculation">
+
 
