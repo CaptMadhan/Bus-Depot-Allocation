@@ -20,6 +20,13 @@ cursor = data_base.cursor()
 
 # Define a function for opening the file
 def open_file():
+    '''
+        This function accepts an excel file, reads the file, and stores the data in database.
+
+        Opens a dialog box to choose the excel file from file manager.
+        Reads the data and stores in a dataframe and writes into the Data table.
+        Supporting error logs are recorded if any errors are faced.
+    '''
     sys.stdout = open("test.txt", "w")
     filename = filedialog.askopenfilename(title="Open a File", filetype=(("xlxs files", ".*xlsx"),
                                                                          ("All Files", "*.")))
@@ -52,6 +59,11 @@ def open_file():
     detailed_Result.place_forget()
 
 def clear_data():
+    '''
+        clear_data() function is responsible to clear the values present in the treeview.
+
+        The values in weights tree, supply-demand tree and result-tree which results in empty table visualised in UI. 
+    '''
     for item in weights_tree.get_children():
       weights_tree.delete(item)
     for item in supply_tree.get_children():
@@ -66,6 +78,12 @@ def clear_data():
     detailed_Result.place_forget()
 
 def show_data():
+    '''
+        show_data() function reads data from the Data table from Database and displays in appropriate locations.
+
+        The variables are assigned to the data to be initialized form database.
+        The data is updated into the trees.
+    '''
     global demand,supply,weights
     cursor.execute('''SELECT * FROM Data''')
     data = pd.DataFrame(cursor.fetchall())
@@ -86,6 +104,9 @@ def show_data():
 
 
 def table_from_df(data,tree,columns):
+    '''
+        table_from_df() is used to update the trees from the dataframe.
+    '''
     for item in tree.get_children():
         tree.delete(item)
     tree["column"] = list(columns)
@@ -99,6 +120,12 @@ def table_from_df(data,tree,columns):
     tree.pack()
 
 def allocate():
+    '''
+        allocate() function is used to perform the main operation from the Logic.py and compute results.
+
+        The main_fun() from Logic.py is called here with appropriate paramters and the results are captured.
+        The buttons are made visible after obtaining results. 
+    '''
     sys.stdout = open("test.txt", "w")
     cursor.execute('''SELECT * FROM Data''')
     data = pd.DataFrame(cursor.fetchall())
@@ -115,6 +142,11 @@ def allocate():
     detailed_Result.place(relx=0.55,rely=0.93)
 
 def download_result():
+    '''
+        download_results() function is used to download the allocation data in excel file format.
+
+        The dialog box is invoked to save the file with user preferences.
+    '''
     cursor.execute('''SELECT * FROM Data''')
     data = pd.DataFrame(cursor.fetchall())
     if chosen_choice.get() == "North-West rule":
