@@ -1,3 +1,26 @@
+'''
+    Logic.py file has the main Business logic of IBFS functions and transporation function.
+
+    IBFS functions are Row Minima method, North-West corner rule and Least Cost method.
+    Transportation method used is MODI method.
+
+    Row Minima method:
+        In the row minima method, the first row that is the lowest cost cell is exhausted. 
+        Our aim will be to allocate the maximum either at the first source or demand at the destinations or to satisfy both. 
+        This process must be continued for all the other reduced transportation costs until and unless the supply and demand are satisfied.
+
+    North-West corner rule:
+        The name North-west corner is given to this method because the basic variables are selected from the extreme left corner.
+
+    Least Cost method:
+        Here, the allocation begins with the cell which has the minimum cost. 
+        The lower cost cells are chosen over the higher-cost cell with the objective to have the least cost of transportation.
+    
+    Transportation Problem: MODI Method:
+        There are two phases to solve the transportation problem. 
+        In the first phase, the initial basic feasible solution has to be found.
+        The second phase involves optimization of the initial basic feasible solution that was obtained in the first phase.
+'''
 import numpy as np
 import threading
 import os
