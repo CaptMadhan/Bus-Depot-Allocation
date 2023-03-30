@@ -15,3 +15,10 @@
 <img src="Snapshots/detailed_calculation.png" title="Detailed Calculation">
 
 
+Command to run: >python root.py
+
+Requirements:
+->python3.7 and above must be installed.
+
+
+
